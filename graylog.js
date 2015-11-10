@@ -249,8 +249,9 @@ graylog.prototype._log = function log(short_message, full_message, additionalFie
 
 graylog.prototype.send = function (chunk, server, cb) {
     var that = this;
+    console.log('GETTING CLIENT');
     this.getClient(function(client) {
-
+        console.log('GOT CLIENT: ' + client);
         if (!client) {
             var error = new Error('Socket was already destroyed');
 
