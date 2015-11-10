@@ -58,7 +58,7 @@ graylog.prototype.getClient = function (cb) {
         });
         this.client.bind({port: 152632, exclusive:true}, function() {
           cb(that.client);
-        }
+        });
     } else {
         cb(this.client);
     }
