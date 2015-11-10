@@ -59,11 +59,12 @@ graylog.prototype.getClient = function (cb) {
             client.on('error', function (err) {
                 that.emit('error', err);
             });
-            client.bind({port: 152632, exclusive:true}, function() {
+            client.bind({port: 49152 + Math.floor(Math.random() * 16383), exclusive:true}, function() {
                 this.client = client;
                 that.emit('__client_ready', client);
             });
         }
+        that.setMaxListeners(100);
         this.once('__client_ready', cb);
     } else {
         cb(this.client);
