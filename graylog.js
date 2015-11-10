@@ -64,7 +64,7 @@ graylog.prototype.getClient = function (cb) {
                 that.emit('__client_ready', client);
             });
         }
-        that.setMaxListeners(100);
+        this.setMaxListeners(100);
         this.once('__client_ready', cb);
     } else {
         cb(this.client);
