@@ -50,6 +50,7 @@ graylog.prototype.getServer = function () {
 };
 
 graylog.prototype.getClient = function (cb) {
+    return;
     if (!this.client && !this._isDestroyed) {
         var that = this;
         this.client = dgram.createSocket("udp4");
