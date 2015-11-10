@@ -49,18 +49,22 @@ graylog.prototype.getServer = function () {
     return this.servers[this._callCount++ % this.servers.length];
 };
 
+var building_client = false;
 graylog.prototype.getClient = function (cb) {
-    console.log('GETTIGN CLIENT FOR GRAYLOG');
-    return;
     if (!this.client && !this._isDestroyed) {
-        var that = this;
-        this.client = dgram.createSocket("udp4");
-        this.client.on('error', function (err) {
-            that.emit('error', err);
-        });
-        this.client.bind({port: 152632, exclusive:true}, function() {
-          cb(that.client);
-        });
+        if (!building_client) {
+            building_client = true;
+            var client = dgram.createSocket("udp4");
+            var that = this;
+            client.on('error', function (err) {
+                that.emit('error', err);
+            });
+            client.bind({port: 152632, exclusive:true}, function() {
+                this.client = client;
+                that.emit('__client_ready', client);
+            });
+        }
+        this.once('__client_ready', cb);
     } else {
         cb(this.client);
     }
