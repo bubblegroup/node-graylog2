@@ -50,6 +50,7 @@ graylog.prototype.getServer = function () {
 };
 
 graylog.prototype.getClient = function (cb) {
+    console.log('GETTIGN CLIENT FOR GRAYLOG');
     return;
     if (!this.client && !this._isDestroyed) {
         var that = this;
