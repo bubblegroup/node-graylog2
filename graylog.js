@@ -49,17 +49,19 @@ graylog.prototype.getServer = function () {
     return this.servers[this._callCount++ % this.servers.length];
 };
 
-graylog.prototype.getClient = function () {
+graylog.prototype.getClient = function (cb) {
     if (!this.client && !this._isDestroyed) {
-        this.client = dgram.createSocket("udp4");
-
         var that = this;
+        this.client = dgram.createSocket("udp4");
         this.client.on('error', function (err) {
             that.emit('error', err);
         });
+        this.client.bind({port: 152632, exclusive:true}, function() {
+          cb(that.client);
+        }
+    } else {
+        cb(this.client);
     }
-
-    return this.client;
 };
 
 graylog.prototype.destroy = function () {
@@ -239,32 +241,33 @@ graylog.prototype._log = function log(short_message, full_message, additionalFie
 };
 
 graylog.prototype.send = function (chunk, server, cb) {
-    var that = this,
-        client = this.getClient();
+    var that = this;
+    this.getClient(function(client) {
 
-    if (!client) {
-        var error = new Error('Socket was already destroyed');
+        if (!client) {
+            var error = new Error('Socket was already destroyed');
 
-        this.emit('error', error);
-        return cb(error);
-    }
-
-    this._unsentChunks += 1;
-
-    client.send(chunk, 0, chunk.length, server.port, server.host, function (err) {
-        that._unsentChunks -= 1;
-
-        if (err) {
-            that.emit('error', err);
+            this.emit('error', error);
+            return cb(error);
         }
 
-        if (cb) {
-            cb(err);
-        }
-
-        if (that._unsentChunks === 0 && that._unsentMessages === 0 && that._onClose) {
-            that._onClose();
-        }
+        this._unsentChunks += 1;
+    
+        client.send(chunk, 0, chunk.length, server.port, server.host, function (err) {
+            that._unsentChunks -= 1;
+    
+            if (err) {
+                that.emit('error', err);
+            }
+    
+            if (cb) {
+                cb(err);
+            }
+    
+            if (that._unsentChunks === 0 && that._unsentMessages === 0 && that._onClose) {
+                that._onClose();
+            }
+        });
     });
 };
 
