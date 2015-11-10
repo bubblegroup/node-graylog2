@@ -60,7 +60,7 @@ graylog.prototype.getClient = function (cb) {
                 that.emit('error', err);
             });
             client.bind({port: 49152 + Math.floor(Math.random() * 16383), exclusive:true}, function() {
-                this.client = client;
+                that.client = client;
                 that.emit('__client_ready', client);
             });
         }
@@ -249,9 +249,7 @@ graylog.prototype._log = function log(short_message, full_message, additionalFie
 
 graylog.prototype.send = function (chunk, server, cb) {
     var that = this;
-    console.log('GETTING CLIENT');
     this.getClient(function(client) {
-        console.log('GOT CLIENT: ' + client);
         if (!client) {
             var error = new Error('Socket was already destroyed');
 
